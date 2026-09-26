@@ -1,6 +1,9 @@
+import { existsSync } from 'node:fs';
+assertMigrationIsolation();
+function assertMigrationIsolation() { if (existsSync('supabase/migrations/20260926_gpms_access_draft.sql')) throw new Error('Unreviewed GPMS schema must not be in migrations'); }
 import { readFileSync } from 'node:fs';
 import assert from 'node:assert/strict';
-const base = readFileSync('supabase/migrations/20260926_gpms_access_draft.sql','utf8');
+const base = readFileSync('supabase/drafts/gpms_access_schema_v0.1.sql','utf8');
 const submission = readFileSync('supabase/drafts/gpms_trusted_submission_rpc_v0.1.sql','utf8');
 const instructor = readFileSync('supabase/drafts/gpms_instructor_transactions_v0.1.sql','utf8');
 const active = s => s.split('\n').filter(line => !/^\s*--/.test(line)).join('\n').toLowerCase();
