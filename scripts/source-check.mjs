@@ -1,0 +1,17 @@
+import {readFileSync,existsSync} from 'node:fs';
+import assert from 'node:assert/strict';
+const required=['index.html','package.json','vite.config.ts','tsconfig.json','src/main.tsx','src/modules.tsx','src/style.css','.github/workflows/quality.yml'];
+for(const file of required)assert.ok(existsSync(file),`Missing required file: ${file}`);
+const pkg=JSON.parse(readFileSync('package.json','utf8'));
+assert.ok(pkg.private===true,'Prototype package must remain private');
+assert.ok(pkg.scripts?.build && pkg.scripts?.['check:source'],'Missing build/source scripts');
+const app=readFileSync('src/main.tsx','utf8');
+const modules=readFileSync('src/modules.tsx','utf8');
+const styles=readFileSync('src/style.css','utf8');
+const nav=['Dashboard','Project Explorer','Project Overview','Proposal Builder','Planning & Gantt','Budget Management','Team & Tasks','Implementation','Evaluation Studio','Evidence Center','Report Studio','Learning Workspace'];
+for(const name of nav)assert.ok(app.includes(name),`Missing navigation: ${name}`);
+for(const marker of ['SYNTHETIC DEMO','createRoot','ModuleWorkspace','Management Mode','Learning Mode'])assert.ok(app.includes(marker),`Missing app marker: ${marker}`);
+assert.ok(modules.includes('Export JSON'),'Missing module export action');
+assert.ok(styles.includes('@media'),'Missing responsive CSS');
+assert.ok(!app.includes('SUPABASE_SERVICE_ROLE_KEY'),'Service role key marker must never appear in client source');
+console.log('PASS: required files, private package, 12 navigation labels, demo boundary, export, responsive CSS');

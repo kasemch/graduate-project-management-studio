@@ -1,0 +1,11 @@
+import React,{useState} from 'react';
+const seed:Record<number,{name:string;headers:string[];rows:string[][]}>={
+1:{name:'Project Explorer',headers:['โครงการ','สถานะ'],rows:[['GPMS-DEMO-001 · การสร้างนวัตกรรมทางสุขศึกษาและพลศึกษา','Draft']]},
+2:{name:'Project Overview',headers:['หัวข้อ','รายละเอียด'],rows:[['กลุ่มเป้าหมาย','40 คน (สมมติ)'],['งบประมาณ','30,000 บาท (สมมติ)']]},
+6:{name:'Team & Tasks',headers:['งาน','สถานะ'],rows:[['จัดทำข้อเสนอโครงการ','เสร็จแล้ว'],['ติดต่อวิทยากร','กำลังดำเนินการ']]},
+7:{name:'Implementation',headers:['กิจกรรม','สถานะ'],rows:[['ลงทะเบียน','รอดำเนินการ'],['Workshop','รอดำเนินการ']]},
+9:{name:'Evidence Center',headers:['หลักฐาน','สถานะ'],rows:[['แบบทดสอบก่อนและหลัง','ยังไม่แนบ'],['Rubric ต้นแบบ','ยังไม่แนบ']]},
+10:{name:'Report Studio',headers:['ส่วนรายงาน','สถานะ'],rows:[['บทนำ','รอทบทวน'],['ผลประเมิน','รอข้อมูลจริง']]},
+11:{name:'Learning Workspace',headers:['ภารกิจ','สถานะ'],rows:[['วิเคราะห์ปัญหา','ยังไม่ส่ง'],['สะท้อนคิด','ยังไม่ส่ง']]}
+};
+export function ModuleWorkspace({page}:{page:number}){const item=seed[page];const [all,setAll]=useState<Record<number,string[][]>>({});const rows=all[page]??item.rows;const update=(r:number,c:number,v:string)=>setAll(old=>({...old,[page]:rows.map((row,i)=>i===r?row.map((cell,j)=>j===c?v:cell):row)}));const exportData=()=>{const blob=new Blob([JSON.stringify({synthetic:true,module:item.name,rows},null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='gpms-demo.json';a.click();URL.revokeObjectURL(url)};return <section className="panel"><h2>{item.name}</h2><p>ข้อมูลจำลอง แก้ไขเฉพาะในหน้านี้ ไม่ส่งฐานข้อมูล</p><div className="scroll"><table><thead><tr>{item.headers.map(h=><th key={h}>{h}</th>)}<th>จัดการ</th></tr></thead><tbody>{rows.map((row,i)=><tr key={i}>{row.map((v,j)=><td key={j}><input aria-label={item.headers[j]} value={v} onChange={e=>update(i,j,e.target.value)}/></td>)}<td><button onClick={()=>setAll(old=>({...old,[page]:rows.filter((_,k)=>k!==i)}))}>ลบ</button></td></tr>)}</tbody></table></div><div className="actions"><button onClick={()=>setAll(old=>({...old,[page]:[...rows,item.headers.map(()=>'')]}))}>เพิ่มรายการ</button><button onClick={exportData}>Export JSON</button></div></section>}

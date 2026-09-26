@@ -1,0 +1,33 @@
+name: GPMS quality
+on:
+  push:
+    branches: [develop]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check script syntax
+        run: node --check scripts/source-check.mjs
+      - name: Validate source without dependencies
+        run: node scripts/source-check.mjs
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+      - name: TypeScript and production build
+        run: npm run build
+      - name: Verify build artifact
+        run: test -s dist/index.html
+      - uses: actions/upload-artifact@v4
+        with:
+          name: gpms-preview-dist
+          path: dist/
+          if-no-files-found: error
