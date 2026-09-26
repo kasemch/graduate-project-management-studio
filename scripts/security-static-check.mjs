@@ -12,7 +12,7 @@ for (const table of ['projects','memberships','submissions','submission_versions
   assert.match(ddl,new RegExp('alter table public\\.gpms_'+table+' enable row level security;'));
 for (const table of ['memberships','submission_versions','display_approvals','feedback','projects','submissions'])
   assert.match(ddl,new RegExp('revoke [^;]+ on public\\.gpms_'+table+' from anon,authenticated;'));
-for (const table of ['memberships','submission_versions','display_approvals'])
+for (const table of ['memberships','submission_versions','display_approvals','feedback'])
   assert.doesNotMatch(ddl,new RegExp('create policy [^;]+ on public\\.gpms_'+table+' for (insert|update|delete) to authenticated'));
 assert.doesNotMatch(ddl,/create policy [^;]+ to anon\b/);
 assert.match(rpc,/for update;/);
