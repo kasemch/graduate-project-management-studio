@@ -9,7 +9,7 @@ const ids = { A: ['11111111-1111-4111-8111-111111111101','22222222-2222-4222-822
 const tables = ['projects','submissions','submission_versions','feedback'];
 let failures = 0;
 async function request(table, token) {
-  const response = await fetch(base.replace(/\\/$/,'')+'/'+table+'?select=id', {headers: token ? {Authorization:'Bearer '+token,Accept:'application/json'} : {Accept:'application/json'}, redirect:'error'});
+  const response = await fetch(base.endsWith('/') ? base+table : base+'/'+table+'?select=id', {headers: token ? {Authorization:'Bearer '+token,Accept:'application/json'} : {Accept:'application/json'}, redirect:'error'});
   if (!response.ok) return {status:response.status};
   const rows = await response.json();
   if (!Array.isArray(rows)) throw Error('Unexpected response type');
