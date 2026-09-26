@@ -23,12 +23,21 @@ create policy project_read on public.gpms_projects for select to authenticated u
 create policy membership_read on public.gpms_memberships for select to authenticated using(user_id=(select auth.uid()) or public.gpms_is_instructor(project_id));
 create policy submission_read on public.gpms_submissions for select to authenticated using(owner_id=(select auth.uid()) or public.gpms_is_instructor(project_id));
 create policy submission_insert on public.gpms_submissions for insert to authenticated with check(owner_id=(select auth.uid()) and public.gpms_is_member(project_id));
-create policy submission_update on public.gpms_submissions for update to authenticated using(owner_id=(select auth.uid()) and status='draft') with check(owner_id=(select auth.uid()) and status in ('draft','submitted'));
+-- No direct submission UPDATE policy: trusted transition RPC is required before real use.
 create policy version_read on public.gpms_submission_versions for select to authenticated using(exists(select 1 from public.gpms_submissions s where s.id=submission_id and (s.owner_id=(select auth.uid()) or public.gpms_is_instructor(s.project_id))));
-create policy version_insert on public.gpms_submission_versions for insert to authenticated with check(created_by=(select auth.uid()) and exists(select 1 from public.gpms_submissions s where s.id=submission_id and s.owner_id=(select auth.uid())));
+-- No direct version INSERT policy: atomic server-side version creation is required.
 create policy feedback_read on public.gpms_feedback for select to authenticated using(exists(select 1 from public.gpms_submissions s where s.id=submission_id and (s.owner_id=(select auth.uid()) or public.gpms_is_instructor(s.project_id))));
 create policy feedback_insert on public.gpms_feedback for insert to authenticated with check(author_id=(select auth.uid()) and exists(select 1 from public.gpms_submissions s where s.id=submission_id and public.gpms_is_instructor(s.project_id)));
 create policy display_read on public.gpms_display_approvals for select to authenticated using(exists(select 1 from public.gpms_submissions s where s.id=submission_id and (s.owner_id=(select auth.uid()) or public.gpms_is_instructor(s.project_id))));
-create policy display_insert on public.gpms_display_approvals for insert to authenticated with check(approved_by=(select auth.uid()) and exists(select 1 from public.gpms_submissions s join public.gpms_submission_versions v on v.submission_id=s.id where s.id=submission_id and v.id=approved_version_id and public.gpms_is_instructor(s.project_id)));
-create policy display_update on public.gpms_display_approvals for update to authenticated using(exists(select 1 from public.gpms_submissions s where s.id=submission_id and public.gpms_is_instructor(s.project_id))) with check(approved_by=(select auth.uid()) and exists(select 1 from public.gpms_submissions s join public.gpms_submission_versions v on v.submission_id=s.id where s.id=submission_id and v.id=approved_version_id and public.gpms_is_instructor(s.project_id)));
+-- No direct display INSERT policy: reviewed, moderated server-side approval required.
+-- No direct display UPDATE policy: revocation and audit must be server-side.
 -- No anonymous policies, no public projector view. Instructor membership provisioning is server-side only.
+
+-- Defense in depth: no direct mutation of immutable or privileged tables by browser roles.
+revoke insert,update,delete on public.gpms_memberships from anon,authenticated;
+revoke update,delete on public.gpms_submission_versions from anon,authenticated;
+revoke insert,update,delete on public.gpms_display_approvals from anon,authenticated;
+revoke update,delete on public.gpms_feedback from anon,authenticated;
+revoke update,delete on public.gpms_projects from anon,authenticated;
+revoke update,delete on public.gpms_submissions from anon,authenticated;
+-- This migration remains DESIGN-ONLY. No privileged RPCs or real-data readiness is implied.
