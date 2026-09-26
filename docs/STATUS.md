@@ -1,19 +1,12 @@
-# GPMS Current Status — 2026-09-26
+# GPMS Production Release Status — 2026-09-26
 
-Development branch: develop.
-Review: Draft PR #1.
-Repository source: React/TypeScript/Vite prototype; 12 module navigation entries.
-Actual functionality: partial demonstration, not a complete project management system.
-Persistence: none; state is in memory, with JSON export.
-Build: NOT VERIFIED.
-GitHub Actions: NOT VERIFIED (no workflow run/status returned).
-Responsive browser QA: NOT RUN.
-Public deployment: HOLD.
-Real student data: prohibited.
-See QA-REPORT.md and RELEASE-GATE.md.
-
-## Execution update — 2026-09-26
-- CI now runs dependency-free syntax and source checks before npm installation (commit 792c2a6).
-- Latest commit workflow-run and combined-status queries returned empty lists; this is not a passing CI result.
-- A local original UI-05 archive exists, but the GitHub source is a separately authored prototype. Do not conflate test evidence between them.
-- No merge, production deployment, or real student data use occurred.
+Repository: PUBLIC. Branch: main. PR #1: merged, release commit f617637b3ed379e7198ea33ab5dc831d471d2a6d.
+Scope: synthetic demonstration only; no real student data or production database.
+CI evidence: GPMS quality run #38 passed source validation, dependency installation, TypeScript/Vite build and artifact upload.
+GitHub Pages source: GitHub Actions (confirmed by owner screenshot).
+Production workflow: .github/workflows/deploy-pages.yml, builds and deploys dist on main push.
+Live deployment and browser QA: pending verification; do not claim live until confirmed.
+Functionality: partial demonstration with 12 navigation entries, not a complete management system.
+Persistence: in-memory with JSON export; no server-side student records.
+Provenance: repository source is a separately authored prototype, not a byte-for-byte copy of UI-05.
+This status commit triggers the main-branch production deployment workflow.
