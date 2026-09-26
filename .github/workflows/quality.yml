@@ -4,16 +4,20 @@ on:
     branches: [develop]
   pull_request:
     branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Check source availability
-        run: |
-          test -f package.json || { echo 'Source not imported yet'; exit 1; }
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - run: npm install --no-audit --no-fund
-      - run: npm run build
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+      - name: Validate source
+        run: npm run check:source
+      - name: Production build
+        run: npm run build
