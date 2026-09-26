@@ -1,3 +1,6 @@
+-- SECURITY HOLD: DESIGN-ONLY SQL. DO NOT APPLY TO STAGING OR PRODUCTION.
+-- Known gaps: mutable ownership/project fields, direct status transitions, non-atomic version numbers,
+-- incomplete immutable audit, no projector service or content moderation. See docs/GPMS-RLS-NEGATIVE-TEST-PLAN-v0.1.md.
 -- GPMS schema draft: staging only. Requires Supabase Auth and security review.
 create extension if not exists pgcrypto;
 create table public.gpms_projects(id uuid primary key default gen_random_uuid(), title text not null, created_by uuid not null references auth.users(id), created_at timestamptz not null default now());
