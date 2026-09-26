@@ -25,3 +25,10 @@ These are source-inspection classifications, not browser-test results.
 3. Browser tests at 375, 768 and 1366 px.
 4. Keyboard navigation and form usability checks.
 5. Human review of demo content and release gate.
+
+## 2026-09-26 execution update
+- Strengthened dependency-free source integrity gate in commit af4da6b.
+- A separate local copy of the earlier UI-05 archive was inspected. Its offline npm install failed with ENOTCACHED for @types/react; this is **not** a build result for the GitHub repository.
+- Current GitHub commit workflow-run query and combined-status query both returned empty lists. CI remains NOT VERIFIED.
+- No package-lock.json was generated; do not switch to npm ci until an actual valid lockfile is committed.
+- Browser QA and public preview remain HOLD.
