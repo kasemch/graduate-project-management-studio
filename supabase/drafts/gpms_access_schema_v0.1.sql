@@ -35,7 +35,7 @@ create policy display_read on public.gpms_display_approvals for select to authen
 
 -- Defense in depth: no direct mutation of immutable or privileged tables by browser roles.
 revoke insert,update,delete on public.gpms_memberships from anon,authenticated;
-revoke update,delete on public.gpms_submission_versions from anon,authenticated;
+revoke insert,update,delete on public.gpms_submission_versions from anon,authenticated;
 revoke insert,update,delete on public.gpms_display_approvals from anon,authenticated;
 revoke insert,update,delete on public.gpms_feedback from anon,authenticated;
 revoke update,delete on public.gpms_projects from anon,authenticated;
