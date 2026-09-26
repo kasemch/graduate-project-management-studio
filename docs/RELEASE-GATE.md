@@ -1,12 +1,15 @@
-# Controlled Release Gate
+# GPMS Controlled Release Gate
 
-Current decision: **HOLD**.
+## Standing execution authority
+The academic owner authorizes autonomous, reversible development work on `develop`, including dependency installation, lockfile generation, build/CI repair, functional and responsive testing, documentation, and preview artifact preparation. These are **not human approval gates**. A technical blocker must be recorded and worked around when safely possible, not referred back as a routine approval request.
 
-Do not merge Draft PR #1 or enable GitHub Pages until:
-- CI and production build PASS with traceable logs.
-- All 12 modules receive browser-based functional QA.
-- Responsive and accessibility checks are recorded.
-- Source provenance and documentation are reconciled.
-- Academic owner authorizes the release.
+## Current evidence status
+Build and CI: NOT VERIFIED. Browser QA: NOT RUN. Public deployment: HOLD.
 
-No real student records, credentials, or production service connections are permitted in this prototype.
+## Actual human authorization gates
+- Merge into main for release or publish a public website.
+- Connect production systems or import real student/personal data.
+- Commit paid spending or perform destructive/irreversible operations.
+- Take actions requiring institutional or academic authorization.
+
+Continue all other safe tasks in full batches without repeated approval.
