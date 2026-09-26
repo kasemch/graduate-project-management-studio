@@ -27,7 +27,7 @@ create policy submission_insert on public.gpms_submissions for insert to authent
 create policy version_read on public.gpms_submission_versions for select to authenticated using(exists(select 1 from public.gpms_submissions s where s.id=submission_id and (s.owner_id=(select auth.uid()) or public.gpms_is_instructor(s.project_id))));
 -- No direct version INSERT policy: atomic server-side version creation is required.
 create policy feedback_read on public.gpms_feedback for select to authenticated using(exists(select 1 from public.gpms_submissions s where s.id=submission_id and (s.owner_id=(select auth.uid()) or public.gpms_is_instructor(s.project_id))));
-create policy feedback_insert on public.gpms_feedback for insert to authenticated with check(author_id=(select auth.uid()) and exists(select 1 from public.gpms_submissions s where s.id=submission_id and public.gpms_is_instructor(s.project_id)));
+-- No direct feedback INSERT policy: use trusted audited instructor transaction.
 create policy display_read on public.gpms_display_approvals for select to authenticated using(exists(select 1 from public.gpms_submissions s where s.id=submission_id and (s.owner_id=(select auth.uid()) or public.gpms_is_instructor(s.project_id))));
 -- No direct display INSERT policy: reviewed, moderated server-side approval required.
 -- No direct display UPDATE policy: revocation and audit must be server-side.
@@ -37,7 +37,7 @@ create policy display_read on public.gpms_display_approvals for select to authen
 revoke insert,update,delete on public.gpms_memberships from anon,authenticated;
 revoke update,delete on public.gpms_submission_versions from anon,authenticated;
 revoke insert,update,delete on public.gpms_display_approvals from anon,authenticated;
-revoke update,delete on public.gpms_feedback from anon,authenticated;
+revoke insert,update,delete on public.gpms_feedback from anon,authenticated;
 revoke update,delete on public.gpms_projects from anon,authenticated;
 revoke update,delete on public.gpms_submissions from anon,authenticated;
 -- This migration remains DESIGN-ONLY. No privileged RPCs or real-data readiness is implied.
