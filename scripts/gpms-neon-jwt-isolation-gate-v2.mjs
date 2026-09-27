@@ -4,12 +4,12 @@ const base = process.env.GPMS_TEST_API_URL;
 const jwt = { A: process.env.GPMS_TEST_JWT_A, B: process.env.GPMS_TEST_JWT_B, instructor: process.env.GPMS_TEST_JWT_INSTRUCTOR, outsider: process.env.GPMS_TEST_JWT_OUTSIDER };
 if (!base || Object.values(jwt).some(x => !x)) throw Error('Genuine signed test JWTs and API URL required');
 const target = new URL(base);
-if (target.protocol !== 'https:' || !target.hostname.startsWith('ep-cool-firefly-b3fxs2b4.apirest.') || target.pathname !== '/neondb/rest/v1') throw Error('Test branch API only');
+if (target.protocol !== 'https:' || target.hostname !== 'ep-cool-firefly-b3fxs2b4.apirest.c-4.ap-southeast-1.aws.neon.tech' || target.port || target.username || target.password || target.pathname !== '/neondb/rest/v1' || target.search || target.hash) throw new Error('Refusing non-isolated test API target');
 const ids = { A: ['11111111-1111-4111-8111-111111111101','22222222-2222-4222-8222-222222222201','33333333-3333-4333-8333-333333333301','44444444-4444-4444-8444-444444444401'], B: ['11111111-1111-4111-8111-111111111102','22222222-2222-4222-8222-222222222202','33333333-3333-4333-8333-333333333302','44444444-4444-4444-8444-444444444402'] };
 const tables = ['projects','submissions','submission_versions','feedback'];
 let failures = 0;
 async function request(table, token) {
-  const response = await fetch((base.endsWith('/') ? base : base+'/')+table+'?select=id', {headers: token ? {Authorization:'Bearer '+token,Accept:'application/json'} : {Accept:'application/json'}, redirect:'error'});
+  const response = await fetch(target.origin + target.pathname + '/' + table + '?select=id', {headers: token ? {Authorization:'Bearer '+token,Accept:'application/json'} : {Accept:'application/json'}, redirect:'error'});
   if (!response.ok) return {status:response.status};
   const rows = await response.json();
   if (!Array.isArray(rows)) throw Error('Unexpected response type');
