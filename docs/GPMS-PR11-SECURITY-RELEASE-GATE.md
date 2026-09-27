@@ -1,19 +1,21 @@
-# GPMS PR #11 — Security Release Gate
+# GPMS PR #11 — Security Release Gate (updated)
 
-Status: **DESIGN COMPLETE FOR REVIEW; DATABASE VALIDATION NOT_RUN; PRODUCTION HOLD**.
+Status: **ISOLATED NEON BRANCH TESTED IN PART; GENUINE JWT NOT RUN; SECURITY HOLD; PRODUCTION UNCHANGED**.
 
 ## Verified
-- GitHub Quality Run #64 succeeded: source check, static SQL guardrails, TypeScript and production build.
-- The draft schema is in `supabase/drafts/gpms_access_schema_v0.1.sql`, not the migration chain.
-- Draft RPCs and instructor transactions remain in `supabase/drafts/`; all use synthetic-only assumptions.
-- No SQL was applied to any database and no real student data was processed.
+- PR #11 is Draft; Issue #12 remains open.
+- Synthetic Neon branch `gpms-security-test` contains two projects, distinct learner ownership, instructor memberships and unrelated nonmember account.
+- All seven GPMS tables have RLS. Authenticated direct writes and anonymous direct reads were denied in SQL role tests; those tests are not JWT tests.
+- Composite foreign keys reject cross-submission approval, cross-project audit and nonmember submission ownership on the isolated branch.
+- GitHub quality workflow builds the frontend and runs static SQL guardrails; JWT test scripts receive syntax checks only, with no credentials/network in CI.
+- `supabase/drafts/` remains draft material, **not** a production or Neon migration chain. Branch-only Neon deltas are documented separately.
 
-## Not verified / blocking
-- SQL syntax and runtime behavior in disposable local Supabase.
-- Actual RLS denial under distinct user JWTs, including R01–R18.
-- Atomicity and concurrency C01–C02; grants, function ownership and security-definer behavior.
-- Consent/moderation, redacted server projector and revocation propagation.
-- Browser accessibility, privacy/retention and independent security review.
+## Blocking
+- Managed `auth` schema lacks USAGE for `authenticated` in direct role test; `auth.uid()` fails. Determine provider-supported resolution and verify actual Data API signed JWT behavior; see Issue #12.
+- Obtain real signed Neon Auth sessions for learner A/B, instructor and unrelated account. Run exact positive and negative visibility tests; no synthetic/fake JWT substitutes.
+- Test API writes and ownership constraints under genuine sessions, concurrency, and server-side transaction design.
+- Configure verified email and approved trusted staging origin before real student onboarding.
+- Complete consent, moderation, revocation, privacy/retention, independent security review and end-to-end frontend acceptance.
 
 ## Decision
-Keep PR #11 Draft. Do not merge as an operational backend, deploy migrations, or enable real student submissions. A future documentation-only merge requires separate explicit scope and does not imply security approval. Capture test evidence before any staging activation.
+Do not merge PR #11 as an operational backend, activate student access, or modify production. A green CI build does not satisfy the security release gate. Keep Issue #12 open until dated evidence is attached and independently reviewed.
