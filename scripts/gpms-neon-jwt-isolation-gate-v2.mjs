@@ -8,12 +8,12 @@ if (target.protocol !== 'https:' || target.hostname !== 'ep-cool-firefly-b3fxs2b
 const ids = { A: ['11111111-1111-4111-8111-111111111101','22222222-2222-4222-8222-222222222201','33333333-3333-4333-8333-333333333301','44444444-4444-4444-8444-444444444401'], B: ['11111111-1111-4111-8111-111111111102','22222222-2222-4222-8222-222222222202','33333333-3333-4333-8333-333333333302','44444444-4444-4444-8444-444444444402'] };
 const tables = ['projects','submissions','submission_versions','feedback'];
 let failures = 0;
-async function request(table, token) {
-  const response = await fetch(target.origin + target.pathname + '/' + table + '?select=id', {headers: token ? {Authorization:'Bearer '+token,Accept:'application/json'} : {Accept:'application/json'}, redirect:'error'});
+async function request(table, token, idColumn='id') {
+  const response = await fetch(target.origin + target.pathname + '/' + table + '?select=' + idColumn, {headers: token ? {Authorization:'Bearer '+token,Accept:'application/json'} : {Accept:'application/json'}, redirect:'error'});
   if (!response.ok) return {status:response.status};
   const rows = await response.json();
   if (!Array.isArray(rows)) throw Error('Unexpected response type');
-  return {status:response.status, ids:rows.map(r=>r.id).sort()};
+  return {status:response.status, ids:rows.map(r=>r[idColumn]).sort()};
 }
 for (const [who,token] of Object.entries(jwt)) {
   for (let i=0;i<tables.length;i++) {
@@ -28,7 +28,7 @@ for (const [who,token] of Object.entries(jwt)) {
   // Memberships must expose only the authenticated user's own rows.
   // The instructor is a member of both projects; unrelated user has none.
   try {
-    const got = await request('memberships', token);
+    const got = await request('memberships', token, 'project_id');
     const membershipWant = who==='instructor' ? [ids.A[0],ids.B[0]].sort() : who==='outsider' ? [] : [ids[who][0]];
     const ok = got.status===200 && JSON.stringify(got.ids)===JSON.stringify(membershipWant);
     console.log((ok?'PASS':'FAIL')+' '+who+' memberships exact visibility');
