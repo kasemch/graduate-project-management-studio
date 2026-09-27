@@ -11,9 +11,9 @@ const expected = {
 };
 if (!api || Object.values(tokens).some(v => !v)) throw new Error('Missing test API URL or genuine test session JWT');
 const u = new URL(api);
-if (u.protocol !== 'https:' || !u.hostname.includes('ep-cool-firefly-b3fxs2b4.apirest.') || !u.pathname.endsWith('/neondb/rest/v1')) throw new Error('Refusing non-isolated test API target');
+if (u.protocol !== 'https:' || u.hostname !== 'ep-cool-firefly-b3fxs2b4.apirest.c-4.ap-southeast-1.aws.neon.tech' || u.port || u.username || u.password || u.pathname !== '/neondb/rest/v1' || u.search || u.hash) throw new Error('Refusing non-isolated test API target');
 async function read(table, token) {
-  const res = await fetch(api.replace(/\\/$/, '') + '/' + table + '?select=id', { headers: { Authorization: 'Bearer ' + token, Accept: 'application/json' }, redirect: 'error' });
+  const res = await fetch(u.origin + u.pathname + '/' + table + '?select=id', { headers: { Authorization: 'Bearer ' + token, Accept: 'application/json' }, redirect: 'error' });
   if (!res.ok) throw new Error(table + ' returned HTTP ' + res.status);
   const rows = await res.json();
   if (!Array.isArray(rows)) throw new Error(table + ' did not return an array');
