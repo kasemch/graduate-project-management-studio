@@ -1,7 +1,7 @@
 // GPMS isolated-branch, read-only real-JWT isolation checks. No token is logged.
 // Supply genuine Neon Auth signed JWTs via environment only. Never use production.
 const base = process.env.GPMS_TEST_API_URL;
-const jwt = { A: process.env.GPMS_TEST_JWT_A, B: process.env.GPMS_TEST_JWT_B, instructor: process.env.GPMS_TEST_JWT_INSTRUCTOR };
+const jwt = { A: process.env.GPMS_TEST_JWT_A, B: process.env.GPMS_TEST_JWT_B, instructor: process.env.GPMS_TEST_JWT_INSTRUCTOR, outsider: process.env.GPMS_TEST_JWT_OUTSIDER };
 if (!base || Object.values(jwt).some(x => !x)) throw Error('Genuine signed test JWTs and API URL required');
 const target = new URL(base);
 if (target.protocol !== 'https:' || !target.hostname.startsWith('ep-cool-firefly-b3fxs2b4.apirest.') || target.pathname !== '/neondb/rest/v1') throw Error('Test branch API only');
@@ -19,7 +19,7 @@ for (const [who,token] of Object.entries(jwt)) {
   for (let i=0;i<tables.length;i++) {
     try {
       const got = await request(tables[i],token);
-      const want = who==='instructor' ? [ids.A[i],ids.B[i]].sort() : [ids[who][i]];
+      const want = who==='instructor' ? [ids.A[i],ids.B[i]].sort() : who==='outsider' ? [] : [ids[who][i]];
       const ok = got.status===200 && JSON.stringify(got.ids)===JSON.stringify(want);
       console.log((ok?'PASS':'FAIL')+' '+who+' '+tables[i]+' exact visibility');
       if (!ok) failures++;
