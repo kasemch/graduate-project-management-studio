@@ -25,6 +25,15 @@ for (const [who,token] of Object.entries(jwt)) {
       if (!ok) failures++;
     } catch(e) { console.error('FAIL '+who+' '+tables[i]+' '+e.message); failures++; }
   }
+  // Memberships must expose only the authenticated user's own rows.
+  // The instructor is a member of both projects; unrelated user has none.
+  try {
+    const got = await request('memberships', token);
+    const membershipWant = who==='instructor' ? [ids.A[0],ids.B[0]].sort() : who==='outsider' ? [] : [ids[who][0]];
+    const ok = got.status===200 && JSON.stringify(got.ids)===JSON.stringify(membershipWant);
+    console.log((ok?'PASS':'FAIL')+' '+who+' memberships exact visibility');
+    if (!ok) failures++;
+  } catch(e) { console.error('FAIL '+who+' memberships '+e.message); failures++; }
   for (const table of ['display_approvals','audit_events']) {
     try {const got=await request(table,token);const ok=got.status===401||got.status===403;console.log((ok?'PASS':'FAIL')+' '+who+' '+table+' denied');if(!ok)failures++;}
     catch(e){console.error('FAIL '+who+' '+table+' '+e.message);failures++;}
