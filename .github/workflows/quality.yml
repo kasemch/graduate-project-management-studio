@@ -24,7 +24,7 @@ jobs:
         run: node --check scripts/security-static-check.mjs
       - name: Static SQL security guardrails (not RLS execution)
         run: node scripts/security-static-check.mjs
-      - name: Check JWT gate script syntax (no credentials or network)\n        run: |\n          node --check scripts/gpms-neon-jwt-read-gate.mjs\n          node --check scripts/gpms-neon-jwt-isolation-gate-v2.mjs\n      - name: Install dependencies
+      - name: Check JWT gate script syntax (no credentials or network)\n        run: |\n          node --check scripts/gpms-neon-jwt-read-gate.mjs\n          node --check scripts/gpms-neon-jwt-isolation-gate-v2.mjs\n      - name: Reject unsafe JWT API targets (offline, dummy values only)\n        run: node scripts/gpms-neon-api-target-guard-test.mjs\n      - name: Install dependencies
         run: npm install --no-audit --no-fund
       - name: TypeScript and production build
         run: npm run build
