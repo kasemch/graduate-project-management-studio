@@ -3,6 +3,7 @@
 const base = process.env.GPMS_TEST_API_URL;
 const jwt = { A: process.env.GPMS_TEST_JWT_A, B: process.env.GPMS_TEST_JWT_B, instructor: process.env.GPMS_TEST_JWT_INSTRUCTOR, outsider: process.env.GPMS_TEST_JWT_OUTSIDER };
 if (!base || Object.values(jwt).some(x => !x)) throw Error('Genuine signed test JWTs and API URL required');
+if (new Set(Object.values(jwt)).size !== Object.keys(jwt).length) throw Error('Distinct user sessions required');
 const target = new URL(base);
 if (target.protocol !== 'https:' || target.hostname !== 'ep-cool-firefly-b3fxs2b4.apirest.c-4.ap-southeast-1.aws.neon.tech' || target.port || target.username || target.password || target.pathname !== '/neondb/rest/v1' || target.search || target.hash) throw new Error('Refusing non-isolated test API target');
 const ids = { A: ['11111111-1111-4111-8111-111111111101','22222222-2222-4222-8222-222222222201','33333333-3333-4333-8333-333333333301','44444444-4444-4444-8444-444444444401'], B: ['11111111-1111-4111-8111-111111111102','22222222-2222-4222-8222-222222222202','33333333-3333-4333-8333-333333333302','44444444-4444-4444-8444-444444444402'] };
@@ -28,9 +29,11 @@ for (const [who,token] of Object.entries(jwt)) {
   // Memberships must expose only the authenticated user's own rows.
   // The instructor is a member of both projects; unrelated user has none.
   try {
-    const got = await request('memberships', token, 'project_id');
-    const membershipWant = who==='instructor' ? [ids.A[0],ids.B[0]].sort() : who==='outsider' ? [] : [ids[who][0]];
-    const ok = got.status===200 && JSON.stringify(got.ids)===JSON.stringify(membershipWant);
+    const response = await fetch(target.origin + target.pathname + '/memberships?select=project_id,role', {headers:{Authorization:'Bearer '+token,Accept:'application/json'},redirect:'error'});
+    const rows = response.ok ? await response.json() : null;
+    const got = {status:response.status, rows:Array.isArray(rows) ? rows.map(r=>[r.project_id,r.role].join(':')).sort() : null};
+    const membershipWant = who==='instructor' ? [ids.A[0]+':instructor',ids.B[0]+':instructor'].sort() : who==='outsider' ? [] : [ids[who][0]+':learner'];
+    const ok = got.status===200 && JSON.stringify(got.rows)===JSON.stringify(membershipWant);
     console.log((ok?'PASS':'FAIL')+' '+who+' memberships exact visibility');
     if (!ok) failures++;
   } catch(e) { console.error('FAIL '+who+' memberships '+e.message); failures++; }
