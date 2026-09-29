@@ -1,0 +1,7 @@
+# GPMS Backend Authorization Contract v1.8
+
+Pure offline module `scripts/gpms-membership-authorization-contract.mjs` and 14 negative test cases are integrated into GitHub CI. This is NOT a deployed endpoint, a JWT verifier, or a database authorization layer. All session verification flags in tests are synthetic; production must derive them exclusively from a trusted provider verifier, not client JSON. Actor identity is derived from verified session subject, not a client-provided actor ID. Project admin role is an explicitly proposed role; existing membership schema currently supports learner/instructor only, so no current user qualifies as admin by this design.
+
+The contract rejects absent/unverified/expired or wrong issuer/audience session, non-admin/outsider/revoked/cross-project operator, cross-project target, forged actor fields, no-op transition and invalid idempotency key. An idempotency key is validated but replay persistence and conflict detection are NOT implemented. Future trusted backend must store (operator, project, key, request fingerprint, outcome) atomically and reject same-key different-payload; enforce unique key and server-only function execution. Never expose existing four-argument maintenance function to browser. No secrets in repository.
+
+Release gate: provider-supported signed JWT and auth.uid RLS proof (Issue #12), server-side operator provisioning and role enforcement, CSRF/origin protection, replay storage and failure tests. PR #11 DRAFT, SECURITY HOLD, production untouched.
