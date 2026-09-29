@@ -37,6 +37,11 @@ jobs:
           node --check scripts/gpms-membership-authorization-contract.mjs
           node --check scripts/gpms-membership-authorization-contract-test.mjs
           node scripts/gpms-membership-authorization-contract-test.mjs
+      - name: Offline replay and idempotency model tests
+        run: |
+          node --check scripts/gpms-membership-replay-model.mjs
+          node --check scripts/gpms-membership-replay-model-test.mjs
+          node scripts/gpms-membership-replay-model-test.mjs
       - name: Install dependencies
         run: npm install --no-audit --no-fund
       - name: TypeScript and production build
