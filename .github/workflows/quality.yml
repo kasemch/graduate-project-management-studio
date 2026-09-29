@@ -32,6 +32,11 @@ jobs:
         run: |
           node scripts/gpms-neon-api-target-guard-test.mjs
           node scripts/gpms-neon-jwt-session-guard-test.mjs
+      - name: Offline membership authorization contract tests
+        run: |
+          node --check scripts/gpms-membership-authorization-contract.mjs
+          node --check scripts/gpms-membership-authorization-contract-test.mjs
+          node scripts/gpms-membership-authorization-contract-test.mjs
       - name: Install dependencies
         run: npm install --no-audit --no-fund
       - name: TypeScript and production build
