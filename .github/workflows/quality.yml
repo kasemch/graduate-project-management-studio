@@ -29,7 +29,9 @@ jobs:
           node --check scripts/gpms-neon-jwt-read-gate.mjs
           node --check scripts/gpms-neon-jwt-isolation-gate-v2.mjs
       - name: Reject unsafe JWT API targets (offline, dummy values only)
-        run: node scripts/gpms-neon-api-target-guard-test.mjs
+        run: |
+          node scripts/gpms-neon-api-target-guard-test.mjs
+          node scripts/gpms-neon-jwt-session-guard-test.mjs
       - name: Install dependencies
         run: npm install --no-audit --no-fund
       - name: TypeScript and production build
