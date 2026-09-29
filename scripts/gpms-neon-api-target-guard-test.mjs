@@ -12,7 +12,7 @@ const bad = [
 for (const script of ['gpms-neon-jwt-read-gate.mjs','gpms-neon-jwt-isolation-gate-v2.mjs']) {
   for (const url of bad) {
     const result = spawnSync(process.execPath, [new URL(script, import.meta.url).pathname], {
-      env: { ...process.env, GPMS_TEST_API_URL:url, GPMS_TEST_JWT_A:'dummy', GPMS_TEST_JWT_B:'dummy', GPMS_TEST_JWT_INSTRUCTOR:'dummy', GPMS_TEST_JWT_OUTSIDER:'dummy' },
+      env: { ...process.env, GPMS_TEST_API_URL:url, GPMS_TEST_JWT_A:'dummy-a', GPMS_TEST_JWT_B:'dummy-b', GPMS_TEST_JWT_INSTRUCTOR:'dummy-instructor', GPMS_TEST_JWT_OUTSIDER:'dummy-outsider' },
       encoding:'utf8', timeout:5000
     });
     if (result.status === 0 || !(result.stderr + result.stdout).includes('Refusing non-isolated test API target')) {
