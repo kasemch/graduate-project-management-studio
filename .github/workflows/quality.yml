@@ -20,6 +20,28 @@ jobs:
         run: node --check scripts/source-check.mjs
       - name: Validate source without dependencies
         run: node scripts/source-check.mjs
+      - name: Check SQL guardrail script syntax
+        run: node --check scripts/security-static-check.mjs
+      - name: Static SQL security guardrails (not RLS execution)
+        run: node scripts/security-static-check.mjs
+      - name: Check JWT gate script syntax (no credentials or network)
+        run: |
+          node --check scripts/gpms-neon-jwt-read-gate.mjs
+          node --check scripts/gpms-neon-jwt-isolation-gate-v2.mjs
+      - name: Reject unsafe JWT API targets (offline, dummy values only)
+        run: |
+          node scripts/gpms-neon-api-target-guard-test.mjs
+          node scripts/gpms-neon-jwt-session-guard-test.mjs
+      - name: Offline membership authorization contract tests
+        run: |
+          node --check scripts/gpms-membership-authorization-contract.mjs
+          node --check scripts/gpms-membership-authorization-contract-test.mjs
+          node scripts/gpms-membership-authorization-contract-test.mjs
+      - name: Offline replay and idempotency model tests
+        run: |
+          node --check scripts/gpms-membership-replay-model.mjs
+          node --check scripts/gpms-membership-replay-model-test.mjs
+          node scripts/gpms-membership-replay-model-test.mjs
       - name: Install dependencies
         run: npm install --no-audit --no-fund
       - name: TypeScript and production build

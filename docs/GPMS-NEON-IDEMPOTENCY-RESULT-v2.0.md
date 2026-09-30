@@ -1,0 +1,7 @@
+# GPMS Neon Idempotency Result v2.0
+
+Isolated test branch only. CI v1.9 run 36580421342 SUCCESS. Created RLS-enabled gpms.membership_idempotency with no browser grants and unique (actor, project, key). Privileged maintenance-only function uses transaction-scoped advisory lock, returns prior event for exact duplicate, raises conflict for changed payload, and atomically records event + key in the same statement transaction. No public function grants.
+
+Synthetic learner A: first revoke created event 14768b89-dfb4-4038-974b-c107b4f45f79, duplicate returned same event with replayed=true, changed active state with same key rejected Idempotency conflict. A new key restored membership active with event 624a433b-8aa8-4280-ab51-3cd8191a55f1. Final ledger=2, event rows=6, learner A active=true. No genuine concurrent two-session test was run; advisory-lock design remains unverified under concurrency. No JWT verification, actor authorization, or server identity binding: the privileged function still accepts actor UUID argument and must NOT be granted to client/generic backend. Existing v1.5 direct function remains privileged and bypasses replay ledger, so this is NOT universal enforcement. No production changes.
+
+Release: SECURITY HOLD; PR #11 DRAFT; Issue #12 open. Next: deny direct bypass via dedicated trusted backend architecture, real concurrency test, atomic insert failure test, signed JWT and operator authorization.

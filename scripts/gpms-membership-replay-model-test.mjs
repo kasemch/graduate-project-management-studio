@@ -1,0 +1,13 @@
+import assert from 'node:assert/strict';
+import { ReplayLedger } from './gpms-membership-replay-model.mjs';
+const base={ok:true,actorId:'operator-a',projectId:'project-a',targetUserId:'learner-a',active:false,idempotencyKey:'request_key_00000001'};
+const ledger=new ReplayLedger();let calls=0;const perform=()=>{calls++;return {eventId:'synthetic-event-1'}};
+assert.equal(ledger.execute({ok:false},perform).status,'denied');assert.equal(calls,0);
+assert.equal(ledger.execute(base,perform).status,'created');assert.equal(ledger.execute({...base},perform).status,'replayed');assert.equal(calls,1);
+for(const changed of [{active:true},{targetUserId:'learner-b'}])assert.equal(ledger.execute({...base,...changed},perform).status,'conflict');
+assert.equal(calls,1);assert.equal(ledger.size,1);
+let failures=0;const other={...base,idempotencyKey:'request_key_00000002'};
+assert.throws(()=>ledger.execute(other,()=>{failures++;throw Error('synthetic insert failure')}),/synthetic insert failure/);
+assert.equal(ledger.size,1);assert.equal(ledger.execute(other,()=>{failures++;return {eventId:'synthetic-event-2'}}).status,'created');assert.equal(failures,2);
+assert.equal(ledger.size,2);assert.equal(ledger.execute({...base,actorId:'operator-b'},perform).status,'created');assert.equal(calls,2);
+console.log('PASS offline replay model: denied, first-write, replay, payload conflict, failure retry, operator scope');
